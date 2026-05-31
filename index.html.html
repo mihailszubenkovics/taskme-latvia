@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaskMe Latvia</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F7F5F2; --surface: #FFFFFF; --border: #E4E0D9;
+    --text: #1C1A18; --muted: #8A8479; --accent: #3D6B4F;
+    --accent-light: #EAF2EC; --warm: #C4763A; --warm-light: #FDF3EA; --tag-bg: #EFEDE8;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 60px; position: sticky; top: 0; z-index: 100; }
+  .logo { font-family: 'Lora', serif; font-size: 20px; color: var(--text); cursor: pointer; letter-spacing: -0.3px; }
+  .logo span { color: var(--accent); }
+  .nav-left { display: flex; align-items: center; gap: 16px; }
+  .nav-links { display: flex; gap: 4px; align-items: center; }
+  .nav-link { font-size: 14px; color: var(--muted); padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: all 0.15s; background: none; border: none; font-family: 'DM Sans', sans-serif; }
+  .nav-link:hover { color: var(--text); background: var(--tag-bg); }
+  .nav-link.active { color: var(--accent); font-weight: 500; }
+  .lang-switcher { display: flex; gap: 5px; align-items: center; }
+  .lang-btn { font-size: 20px; background: none; border: 2px solid transparent; border-radius: 6px; cursor: pointer; padding: 2px 4px; transition: all 0.15s; line-height: 1; opacity: 0.45; }
+  .lang-btn:hover { opacity: 0.8; background: var(--tag-bg); }
+  .lang-btn.active { opacity: 1; border-color: var(--accent); background: var(--accent-light); }
+  .btn { padding: 8px 18px; border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.18s ease; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #305840; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-white { background: #fff; color: var(--accent); font-weight: 600; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-family: 'DM Sans', sans-serif; font-size: 15px; display: inline-flex; align-items: center; gap: 8px; transition: opacity 0.15s; border: none; cursor: pointer; }
+  .btn-white:hover { opacity: 0.9; }
+  .page { display: none; animation: pgIn 0.25s ease; }
+  .page.active { display: block; }
+  @keyframes pgIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .hero { padding: 72px 32px 56px; max-width: 720px; margin: 0 auto; text-align: center; }
+  .hero-badge { display: inline-block; background: var(--accent-light); color: var(--accent); font-size: 12px; font-weight: 500; padding: 4px 14px; border-radius: 20px; margin-bottom: 22px; letter-spacing: 0.3px; }
+  .hero h1 { font-family: 'Lora', serif; font-size: clamp(26px, 5vw, 44px); font-weight: 600; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 16px; }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero p { color: var(--muted); font-size: 16px; margin-bottom: 32px; max-width: 500px; margin-left: auto; margin-right: auto; line-height: 1.7; }
+  .hero-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .stats-bar { display: flex; justify-content: center; gap: 48px; padding: 20px 32px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); }
+  .stat { text-align: center; }
+  .stat-num { font-family: 'Lora', serif; font-size: 22px; font-weight: 600; }
+  .stat-label { font-size: 12px; color: var(--muted); }
+  .main { max-width: 1080px; margin: 0 auto; padding: 40px 24px; display: grid; grid-template-columns: 260px 1fr; gap: 28px; align-items: start; }
+  .filters { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; position: sticky; top: 76px; }
+  .filters h3 { font-size: 12px; font-weight: 500; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .filter-group { margin-bottom: 20px; }
+  .filter-group > label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
+  .filter-options { display: flex; flex-direction: column; gap: 6px; }
+  .filter-option { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; padding: 4px 0; color: var(--text); }
+  .filter-option input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
+  .filter-option .count { margin-left: auto; font-size: 12px; color: var(--muted); }
+  .filter-divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+  .search-bar { display: flex; gap: 10px; margin-bottom: 24px; }
+  .search-input { flex: 1; padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; background: var(--surface); color: var(--text); outline: none; transition: border-color 0.15s; }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--muted); }
+  .tabs { display: flex; margin-bottom: 24px; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; color: var(--muted); background: transparent; border: none; font-family: 'DM Sans', sans-serif; }
+  .tab.active { background: var(--accent); color: #fff; }
+  .tab:not(.active):hover { background: var(--tag-bg); color: var(--text); }
+  .cards { display: flex; flex-direction: column; gap: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; transition: border-color 0.15s, box-shadow 0.15s; cursor: pointer; animation: fadeIn 0.3s ease both; }
+  .card:hover { border-color: var(--accent); box-shadow: 0 2px 12px rgba(61,107,79,0.08); }
+  .card.pinned { border-color: #D4A843; background: #FFFDF5; box-shadow: 0 2px 16px rgba(212,168,67,0.12); }
+  .card.pinned:hover { border-color: #b8902e; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .pin-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: #9A6F1A; background: #FEF3C7; border: 1px solid #D4A843; padding: 2px 8px; border-radius: 20px; margin-bottom: 10px; }
+  .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 12px; }
+  .card-title { font-family: 'Lora', serif; font-size: 17px; font-weight: 600; color: var(--text); line-height: 1.3; }
+  .card-type { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+  .type-job { background: var(--accent-light); color: var(--accent); }
+  .type-resume { background: var(--warm-light); color: var(--warm); }
+  .type-service { background: #EEF0FB; color: #4A5CC7; }
+  .card-meta { display: flex; gap: 16px; margin-bottom: 10px; flex-wrap: wrap; }
+  .card-meta span { font-size: 13px; color: var(--muted); }
+  .card-desc { font-size: 14px; color: var(--muted); line-height: 1.55; margin-bottom: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag { font-size: 12px; background: var(--tag-bg); color: var(--muted); padding: 3px 10px; border-radius: 4px; }
+  .card-date { font-size: 12px; color: var(--muted); }
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty h3 { font-family: 'Lora', serif; font-size: 18px; color: var(--text); margin-bottom: 6px; }
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(28,26,24,0.45); z-index: 200; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border-radius: 14px; padding: 36px; max-width: 520px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; animation: modalIn 0.25s ease; }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.96) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  .modal-close { position: absolute; top: 16px; right: 16px; width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 6px; background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--muted); transition: all 0.15s; }
+  .modal-close:hover { background: var(--tag-bg); color: var(--text); }
+  .modal h2 { font-family: 'Lora', serif; font-size: 22px; margin-bottom: 6px; }
+  .modal-subtitle { color: var(--muted); font-size: 13px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .form-group { margin-bottom: 18px; }
+  .form-group > label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; color: var(--text); }
+  .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 7px; font-family: 'DM Sans', sans-serif; font-size: 14px; background: var(--bg); color: var(--text); outline: none; transition: border-color 0.15s; }
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--accent); }
+  .form-group textarea { resize: vertical; min-height: 90px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .type-toggle { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .type-btn { padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: transparent; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; transition: all 0.15s; text-align: center; color: var(--muted); }
+  .type-btn.selected { border-color: var(--accent); background: var(--accent-light); color: var(--accent); }
+  .type-btn .icon { display: block; font-size: 22px; margin-bottom: 4px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 16px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .detail-section { margin-bottom: 20px; }
+  .detail-label { font-size: 11px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); font-weight: 500; margin-bottom: 6px; }
+  .detail-value { font-size: 15px; color: var(--text); }
+  .contact-box { background: var(--accent-light); border: 1px solid #c5ddc9; border-radius: 8px; padding: 16px; margin-top: 24px; text-align: center; }
+  .divider { width: 48px; height: 2px; background: var(--accent); margin: 48px auto; border-radius: 2px; opacity: 0.4; }
+  .section { max-width: 720px; margin: 0 auto; padding: 0 32px 56px; }
+  .section-label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); font-weight: 500; margin-bottom: 16px; }
+  .section p { font-size: 16px; line-height: 1.8; margin-bottom: 20px; }
+  .values { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; padding: 0 32px; max-width: 784px; margin: 0 auto 56px; }
+  .value-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px 22px; transition: border-color 0.2s, box-shadow 0.2s; }
+  .value-card:hover { border-color: var(--accent); box-shadow: 0 2px 16px rgba(61,107,79,0.08); }
+  .value-icon { font-size: 28px; margin-bottom: 14px; }
+  .value-title { font-family: 'Lora', serif; font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .value-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .channel-block { background: var(--accent); border-radius: 14px; padding: 48px 40px; text-align: center; max-width: 720px; margin: 0 32px 64px; color: #fff; }
+  .channel-block h2 { font-family: 'Lora', serif; font-size: 26px; margin-bottom: 12px; }
+  .channel-block p { font-size: 15px; opacity: 0.85; margin-bottom: 28px; line-height: 1.7; }
+  .toggle-wrap { display: flex; justify-content: center; margin-bottom: 48px; }
+  .toggle { display: inline-flex; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .toggle-btn { padding: 12px 32px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; border: none; background: transparent; color: var(--muted); transition: all 0.18s; }
+  .toggle-btn.active { background: var(--accent); color: #fff; }
+  .steps-section { display: none; max-width: 680px; margin: 0 auto; padding: 0 32px 64px; }
+  .steps-section.visible { display: block; }
+  .steps-intro { font-size: 15px; color: var(--muted); margin-bottom: 40px; line-height: 1.7; }
+  .step { display: grid; grid-template-columns: 56px 1fr; gap: 20px; margin-bottom: 36px; align-items: start; }
+  .step-num { width: 48px; height: 48px; border-radius: 50%; background: var(--accent-light); color: var(--accent); font-family: 'Lora', serif; font-size: 18px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .step-num.warm { background: var(--warm-light); color: var(--warm); }
+  .step-title { font-family: 'Lora', serif; font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .step-desc { font-size: 14px; color: var(--muted); line-height: 1.65; }
+  .step-note { display: inline-block; margin-top: 8px; font-size: 12px; background: var(--tag-bg); color: var(--muted); padding: 3px 10px; border-radius: 4px; }
+  .step-connector { width: 2px; height: 24px; background: var(--border); margin: 0 auto 0 27px; border-radius: 2px; }
+  .faq { max-width: 680px; margin: 0 auto; padding: 0 32px 64px; }
+  .faq-title { font-family: 'Lora', serif; font-size: 22px; font-weight: 600; margin-bottom: 24px; }
+  .faq-item { border-top: 1px solid var(--border); padding: 18px 0; cursor: pointer; }
+  .faq-item:last-child { border-bottom: 1px solid var(--border); }
+  .faq-q { display: flex; justify-content: space-between; align-items: center; font-weight: 500; font-size: 15px; gap: 16px; }
+  .faq-icon { font-size: 18px; color: var(--muted); transition: transform 0.2s; flex-shrink: 0; }
+  .faq-a { font-size: 14px; color: var(--muted); line-height: 1.7; margin-top: 10px; display: none; }
+  .faq-item.open .faq-a { display: block; }
+  .faq-item.open .faq-icon { transform: rotate(45deg); }
+  .cta { background: var(--accent); border-radius: 14px; padding: 48px 40px; text-align: center; max-width: 680px; margin: 0 32px 64px; color: #fff; }
+  .cta h2 { font-family: 'Lora', serif; font-size: 24px; margin-bottom: 10px; }
+  .cta p { font-size: 15px; opacity: 0.85; margin-bottom: 28px; }
+  .toast { position: fixed; bottom: 24px; right: 24px; background: var(--text); color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 14px; z-index: 300; transform: translateY(60px); opacity: 0; transition: all 0.3s ease; pointer-events: none; }
+  .toast.show { transform: translateY(0); opacity: 1; }
+  footer { border-top: 1px solid var(--border); background: var(--surface); padding: 28px 32px; text-align: center; margin-top: 40px; }
+  .footer-logo { font-family: 'Lora', serif; font-size: 17px; margin-bottom: 6px; }
+  .footer-logo span { color: var(--accent); }
+  footer p { font-size: 12px; color: var(--muted); margin-top: 8px; }
+  /* ENG text lang button */
+  .lang-btn-eng { font-size: 12px !important; font-weight: 700; letter-spacing: 0.5px; font-family: 'DM Sans', sans-serif; padding: 3px 7px !important; }
+
+  /* Nav — prevent wrapping on desktop, tighten gaps */
+  .nav-links { gap: 2px; flex-wrap: nowrap; }
+  .nav-link { padding: 6px 10px; white-space: nowrap; }
+
+  /* Fix Telegram button text wrapping in support/about pages */
+  .channel-block a.btn-white,
+  a[data-i18n="sup.openBtn"],
+  a[data-i18n="footer.tg"],
+  a[data-i18n="about.tgBtn"] { white-space: nowrap; }
+
+  /* Support grid Telegram link fix */
+  a[data-i18n="sup.openBtn"] { display: inline-flex; align-items: center; white-space: nowrap; }
+
+  
+  /* ── TABLET (768px) ── */
+  @media (max-width: 900px) {
+    .main { grid-template-columns: 1fr; }
+    .filters { display: none; }
+    .values { grid-template-columns: 1fr 1fr; }
+    nav { padding: 0 20px; }
+    .nav-link { font-size: 13px; padding: 6px 8px; }
+    .hero { padding: 56px 24px 44px; }
+    .channel-block, .cta { margin: 0 24px 48px; }
+    .steps-section, .faq { padding-left: 24px; padding-right: 24px; }
+    .section { padding: 0 24px 48px; }
+  }
+
+  /* ── MOBILE (600px) ── */
+  @media (max-width: 600px) {
+    /* NAV */
+    nav { padding: 0 16px; height: 56px; }
+    .nav-links { display: none; }
+    .nav-left { gap: 10px; }
+    .logo { font-size: 18px; }
+    .lang-btn { font-size: 16px; padding: 2px 3px; }
+
+    /* MOBILE MENU */
+    .mob-menu-btn { display: flex; }
+
+    /* HERO */
+    .hero { padding: 40px 16px 36px; }
+    .hero h1 { font-size: 26px; }
+    .hero p { font-size: 14px; }
+    .hero-actions { flex-direction: column; align-items: center; }
+    .hero-actions .btn { width: 100%; max-width: 300px; justify-content: center; }
+    .hero-badge { font-size: 11px; }
+
+    /* STATS */
+    .stats-bar { gap: 0; padding: 0; }
+    .stat { flex: 1; padding: 16px 8px; border-right: 1px solid var(--border); }
+    .stat:last-child { border-right: none; }
+    .stat-num { font-size: 18px; }
+    .stat-label { font-size: 10px; }
+
+    /* BOARD */
+    .main { padding: 20px 16px; }
+    .search-bar { flex-direction: column; gap: 8px; }
+    .search-bar .btn { width: 100%; justify-content: center; }
+    .search-input { font-size: 15px; }
+    .tabs { font-size: 13px; }
+    .tab { padding: 9px 6px; font-size: 12px; }
+
+    /* CARDS */
+    .card { padding: 16px; }
+    .card-title { font-size: 15px; }
+    .card-meta { gap: 8px; flex-wrap: wrap; }
+    .card-meta span { font-size: 12px; }
+    .card-desc { font-size: 13px; }
+    .card-footer { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .tags { flex-wrap: wrap; }
+
+    /* MODAL */
+    .modal { padding: 20px 16px; border-radius: 14px 14px 0 0; margin: auto 0 0 0; max-height: 92vh; }
+    .modal-overlay { align-items: flex-end; padding: 0; }
+    .type-toggle { grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .type-btn { padding: 10px 6px; font-size: 13px; }
+    .type-btn .icon { font-size: 18px; }
+    .form-row { grid-template-columns: 1fr; gap: 10px; }
+    .modal-actions { flex-direction: column; }
+    .modal-actions .btn { width: 100%; justify-content: center; }
+
+    /* ABOUT */
+    .values { grid-template-columns: 1fr; padding: 0 16px; }
+    .value-card { padding: 20px 16px; }
+    .section { padding: 0 16px 36px; }
+    .channel-block { margin: 0 16px 40px; padding: 28px 16px; border-radius: 12px; }
+    .channel-block h2 { font-size: 20px; }
+    .divider { margin: 32px auto; }
+
+    /* HOW */
+    .toggle-btn { padding: 10px 12px; font-size: 13px; }
+    .steps-section { padding: 0 16px 48px; }
+    .step { grid-template-columns: 44px 1fr; gap: 12px; }
+    .step-num { width: 40px; height: 40px; font-size: 16px; }
+    .step-title { font-size: 16px; }
+    .step-desc { font-size: 13px; }
+    .faq { padding: 0 16px 48px; }
+    .faq-title { font-size: 18px; }
+    .faq-q { font-size: 14px; }
+    .cta { margin: 0 16px 48px; padding: 28px 16px; border-radius: 12px; }
+    .cta h2 { font-size: 20px; }
+
+    /* SUPPORT */
+    .support-grid { grid-template-columns: 1fr !important; padding: 0 16px 48px !important; }
+
+    /* FOOTER */
+    footer { padding: 24px 16px; }
+  }
+
+  /* ── SMALL MOBILE (380px) ── */
+  @media (max-width: 380px) {
+    .hero h1 { font-size: 22px; }
+    .stats-bar { flex-direction: column; gap: 0; }
+    .stat { border-right: none; border-bottom: 1px solid var(--border); padding: 12px 16px; }
+    .stat:last-child { border-bottom: none; }
+    .tab { font-size: 11px; padding: 8px 4px; }
+    .lang-btn { font-size: 14px; }
+  }
+
+  /* ── MOBILE MENU BUTTON ── */
+  .mob-menu-btn { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: pointer; padding: 6px; border-radius: 6px; transition: background 0.15s; }
+  .mob-menu-btn:hover { background: var(--tag-bg); }
+  .mob-menu-btn span { display: block; width: 22px; height: 2px; background: var(--text); border-radius: 2px; transition: all 0.25s; }
+  .mob-menu-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .mob-menu-btn.open span:nth-child(2) { opacity: 0; }
+  .mob-menu-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ── MOBILE NAV PANEL ── */
+  .mob-nav { display: block; position: fixed; inset: 0; z-index: 500; pointer-events: none; visibility: hidden; }
+  .mob-nav.open { pointer-events: all; visibility: visible; }
+  .mob-nav-overlay { position: absolute; inset: 0; background: rgba(28,26,24,0.55); opacity: 0; transition: opacity 0.3s; -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
+  .mob-nav.open .mob-nav-overlay { opacity: 1; }
+  .mob-nav-panel { position: absolute; top: 0; right: 0; width: min(320px, 85vw); height: 100%; background: var(--surface); border-left: 1px solid var(--border); transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.22,1,0.36,1); display: flex; flex-direction: column; box-shadow: -8px 0 32px rgba(0,0,0,0.12); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .mob-nav.open .mob-nav-panel { transform: translateX(0); }
+  .mob-nav-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 20px 16px; border-bottom: 1px solid var(--border); }
+  .mob-nav-close { width: 32px; height: 32px; border: 1px solid var(--border); border-radius: 6px; background: transparent; cursor: pointer; font-size: 16px; color: var(--muted); display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .mob-nav-close:hover { background: var(--tag-bg); color: var(--text); }
+  .mob-nav-links { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 4px; }
+  .mob-nav-links button { width: 100%; text-align: left; padding: 14px 16px; border: none; background: none; font-family: 'DM Sans', sans-serif; font-size: 16px; color: var(--text); border-radius: 8px; cursor: pointer; transition: all 0.15s; font-weight: 500; }
+  .mob-nav-links button:hover { background: var(--tag-bg); color: var(--accent); }
+  .mob-nav-bottom { padding: 16px 20px 32px; border-top: 1px solid var(--border); }
+
+  @media (max-width: 600px) {
+    .mob-menu-btn { display: flex; }
+  }
+
+
+  /* ── PHOTO UPLOAD ── */
+  .photo-upload-area { border: 2px dashed var(--border); border-radius: 10px; padding: 24px 16px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg); position: relative; overflow: hidden; }
+  .photo-upload-area:hover { border-color: var(--accent); background: var(--accent-light); }
+  .photo-upload-area.dragover { border-color: var(--accent); background: var(--accent-light); transform: scale(1.01); }
+  .photo-upload-area input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .photo-upload-icon { font-size: 32px; margin-bottom: 8px; }
+  .photo-upload-label { font-size: 14px; color: var(--muted); line-height: 1.5; }
+  .photo-upload-label strong { color: var(--accent); }
+  .photo-upload-label small { display: block; font-size: 11px; margin-top: 4px; color: var(--muted); opacity: 0.7; }
+
+  /* PHOTO PREVIEW */
+  .photo-preview-wrap { position: relative; display: inline-block; margin-top: 12px; }
+  .photo-preview { width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); display: block; }
+  .photo-preview-remove { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; border-radius: 50%; background: rgba(28,26,24,0.7); color: #fff; border: none; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+  .photo-preview-remove:hover { background: #e53e3e; }
+
+  /* CARD WITH PHOTO */
+  .card-photo { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 14px; border: 1px solid var(--border); display: block; }
+  .card-photo-wrap { position: relative; overflow: hidden; border-radius: 8px; margin-bottom: 14px; }
+  .card-photo-wrap img { width: 100%; height: 160px; object-fit: cover; display: block; transition: transform 0.3s; }
+  .card:hover .card-photo-wrap img { transform: scale(1.03); }
+
+  /* DETAIL MODAL PHOTO */
+  .detail-photo { width: 100%; max-height: 260px; object-fit: cover; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--border); }
+
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <div class="logo" onclick="showPage('board')">Task<span>Me</span></div>
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('ru')" title="Русский">🇷🇺</button>
+      <button class="lang-btn" onclick="setLang('lv')" title="Latviešu">🇱🇻</button>
+      <button class="lang-btn lang-btn-eng" onclick="setLang('en')" title="English">ENG</button>
+    </div>
+  </div>
+  <button class="mob-menu-btn" id="mobMenuBtn" onclick="toggleMobMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="nav-links">
+    <button class="nav-link" id="nav-board" onclick="showPage('board')" data-i18n="nav.board">Объявления</button>
+    <button class="nav-link" id="nav-about" onclick="showPage('about')" data-i18n="nav.about">О нас</button>
+    <button class="nav-link" id="nav-how" onclick="showPage('how')" data-i18n="nav.how">Как это работает</button>
+    <button class="nav-link" id="nav-support" onclick="showPage('support')" data-i18n="nav.support">Поддержка</button>
+    <button class="btn btn-primary" onclick="openModal('publish')" data-i18n="nav.post">+ Разместить</button>
+  </div>
+</nav>
+
+<!-- BOARD -->
+<div class="page active" id="page-board">
+  <section class="hero">
+    <div class="hero-badge">🇱🇻 TaskMe Latvia</div>
+    <h1 data-i18n="board.h1">Найди <em>подработку</em> или хорошего сотрудника</h1>
+    <p data-i18n="board.sub">Доска объявлений сообщества TaskMe Latvia. Размещение бесплатно.</p>
+    <div class="hero-actions">
+      <button class="btn btn-primary" onclick="openModal('publish')" data-i18n="board.postBtn">📋 Разместить бесплатно</button>
+      <button class="btn btn-outline" onclick="document.getElementById('cards-section').scrollIntoView({behavior:'smooth'})" data-i18n="board.browseBtn">Смотреть объявления</button>
+    </div>
+  </section>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-num" id="totalCount">0</div><div class="stat-label" data-i18n="stats.listings">объявлений</div></div>
+    <div class="stat"><div class="stat-num">🆓</div><div class="stat-label" data-i18n="stats.free">публикация бесплатно</div></div>
+    <div class="stat"><div class="stat-num">📌</div><div class="stat-label" data-i18n="stats.pin">закреп — 5€/мес</div></div>
+  </div>
+  <div class="main" id="cards-section">
+    <aside class="filters">
+      <h3 data-i18n="filter.title">Фильтры</h3>
+      <div class="filter-group">
+        <label data-i18n="filter.type">Тип</label>
+        <div class="filter-options">
+          <label class="filter-option"><input type="checkbox" checked onchange="applyFilters()"> <span data-i18n="type.job">Вакансии</span> <span class="count" id="jobCount">0</span></label>
+          <label class="filter-option"><input type="checkbox" checked onchange="applyFilters()"> <span data-i18n="type.resume">Анкеты</span> <span class="count" id="resumeCount">0</span></label>
+          <label class="filter-option"><input type="checkbox" checked onchange="applyFilters()"> <span data-i18n="type.service">Услуги</span> <span class="count" id="serviceCount">0</span></label>
+        </div>
+      </div>
+      <hr class="filter-divider">
+      <div class="filter-group">
+        <label data-i18n="filter.format">Формат</label>
+        <div class="filter-options">
+          <label class="filter-option"><input type="checkbox" checked onchange="applyFilters()"> <span data-i18n="format.remote">Удалённо</span></label>
+          <label class="filter-option"><input type="checkbox" checked onchange="applyFilters()"> <span data-i18n="format.onsite">На месте</span></label>
+          <label class="filter-option"><input type="checkbox" checked onchange="applyFilters()"> <span data-i18n="format.hybrid">Гибридно</span></label>
+        </div>
+      </div>
+      <hr class="filter-divider">
+      <div class="filter-group">
+        <label data-i18n="filter.schedule">График</label>
+        <div class="filter-options">
+          <label class="filter-option"><input type="checkbox" checked onchange="applyFilters()"> <span data-i18n="sched.part">Частичная занятость</span></label>
+          <label class="filter-option"><input type="checkbox" checked onchange="applyFilters()"> <span data-i18n="sched.full">Полная занятость</span></label>
+          <label class="filter-option"><input type="checkbox" checked onchange="applyFilters()"> <span data-i18n="sched.once">Разовая задача</span></label>
+        </div>
+      </div>
+    </aside>
+    <div>
+      <div class="search-bar">
+        <input class="search-input" id="searchInput" oninput="applyFilters()" data-i18n-ph="search.ph">
+        <button class="btn btn-primary" onclick="openModal('publish')" data-i18n="nav.post">+ Разместить</button>
+      </div>
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('all',this)" data-i18n="tab.all">Все</button>
+        <button class="tab" onclick="switchTab('job',this)" data-i18n="type.job">Вакансии</button>
+        <button class="tab" onclick="switchTab('resume',this)" data-i18n="type.resume">Анкеты</button>
+        <button class="tab" onclick="switchTab('service',this)" data-i18n="type.service">Услуги</button>
+      </div>
+      <div class="cards" id="cardsContainer"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<div class="page" id="page-about">
+  <section class="hero">
+    <div class="hero-badge">🇱🇻 TaskMe Latvia</div>
+    <h1 data-i18n="about.h1">Мы открываем новую <em>площадку</em> для поиска работы</h1>
+    <p data-i18n="about.sub">Быстрый и доступный способ найти подработку или нужного сотрудника — бесплатно.</p>
+  </section>
+  <div class="divider"></div>
+  <section class="section">
+    <div class="section-label" data-i18n="about.mLabel">Наша миссия</div>
+    <p data-i18n="about.p1">TaskMe Latvia — площадка, созданная для того, чтобы поиск работы и найм сотрудников стали простыми и доступными для каждого.</p>
+    <p data-i18n="about.p2">Наша цель — создать <strong>полноценную платформу</strong>, которая работает для удобства жителей Латвии.</p>
+    <p data-i18n="about.p3">Мы только в начале пути, и каждое объявление — шаг к более доступному рынку труда.</p>
+  </section>
+  <div class="values">
+    <div class="value-card"><div class="value-icon">⚡</div><div class="value-title" data-i18n="about.v1t">Быстро</div><div class="value-desc" data-i18n="about.v1d">Публикация занимает меньше минуты.</div></div>
+    <div class="value-card"><div class="value-icon">🆓</div><div class="value-title" data-i18n="about.v2t">Бесплатно</div><div class="value-desc" data-i18n="about.v2d">Размещение анкет и вакансий полностью бесплатно.</div></div>
+    <div class="value-card"><div class="value-icon">🤝</div><div class="value-title" data-i18n="about.v3t">Для людей</div><div class="value-desc" data-i18n="about.v3d">Платформа для жителей Латвии — простая и удобная.</div></div>
+  </div>
+  <div class="channel-block" style="margin-left:32px;margin-right:32px">
+    <h2 data-i18n="about.tgT">Мы в Telegram</h2>
+    <p data-i18n="about.tgD">Присоединяйся к каналу — там первыми появляются новые объявления.</p>
+    <a href="https://t.me/TaskMeLatvia" target="_blank" class="btn-white" data-i18n="about.tgBtn">✈️ Открыть канал</a>
+  </div>
+</div>
+
+<!-- HOW -->
+<div class="page" id="page-how">
+  <section class="hero">
+    <div class="hero-badge" data-i18n="how.badge">📖 Инструкция</div>
+    <h1 data-i18n="how.h1">Как найти работу или <em>сотрудника</em> через TaskMe</h1>
+    <p data-i18n="how.sub">Всё просто и бесплатно — выбери свою роль.</p>
+  </section>
+  <div class="toggle-wrap">
+    <div class="toggle">
+      <button class="toggle-btn active" onclick="showSection('worker',this)" data-i18n="how.worker">👤 Ищу работу</button>
+      <button class="toggle-btn" onclick="showSection('employer',this)" data-i18n="how.employer">🏢 Ищу сотрудника</button>
+    </div>
+  </div>
+  <div class="steps-section visible" id="section-worker">
+    <p class="steps-intro" data-i18n="how.wIntro">Ты студент или ищешь дополнительный заработок? Вот как найти предложение — всё бесплатно.</p>
+    <div class="step"><div class="step-num">1</div><div><div class="step-title" data-i18n="how.w1t">Просматривай объявления</div><div class="step-desc" data-i18n="how.w1d">Открой раздел и листай вакансии. Используй фильтры.</div><span class="step-note">🆓</span></div></div>
+    <div class="step-connector"></div>
+    <div class="step"><div class="step-num">2</div><div><div class="step-title" data-i18n="how.w2t">Нашёл подходящее — напиши напрямую</div><div class="step-desc" data-i18n="how.w2d">Открой карточку и нажми кнопку Telegram.</div></div></div>
+    <div class="step-connector"></div>
+    <div class="step"><div class="step-num">3</div><div><div class="step-title" data-i18n="how.w3t">Размести свою анкету бесплатно</div><div class="step-desc" data-i18n="how.w3d">Нажми "Разместить", выбери "Анкета" и заполни форму.</div><span class="step-note">🆓</span></div></div>
+    <div class="step-connector"></div>
+    <div class="step"><div class="step-num">4</div><div><div class="step-title" data-i18n="how.w4t">Хочешь больше откликов? Закрепи анкету</div><div class="step-desc" data-i18n="how.w4d">За 5€/мес анкета будет всегда первой с золотой пометкой.</div><span class="step-note">📌 5€/мес</span></div></div>
+  </div>
+  <div class="steps-section" id="section-employer">
+    <p class="steps-intro" data-i18n="how.eIntro">Ищешь сотрудника? Всё бесплатно — платить только за закреп.</p>
+    <div class="step"><div class="step-num warm">1</div><div><div class="step-title" data-i18n="how.e1t">Просматривай анкеты соискателей</div><div class="step-desc" data-i18n="how.e1d">Выбери вкладку "Анкеты" в разделе объявлений.</div><span class="step-note">🆓</span></div></div>
+    <div class="step-connector"></div>
+    <div class="step"><div class="step-num warm">2</div><div><div class="step-title" data-i18n="how.e2t">Нашёл подходящего — напиши напрямую</div><div class="step-desc" data-i18n="how.e2d">Открой анкету и нажми кнопку Telegram.</div></div></div>
+    <div class="step-connector"></div>
+    <div class="step"><div class="step-num warm">3</div><div><div class="step-title" data-i18n="how.e3t">Размести вакансию бесплатно</div><div class="step-desc" data-i18n="how.e3d">Нажми "Разместить", выбери "Вакансия" и опиши задачу.</div><span class="step-note">🆓</span></div></div>
+    <div class="step-connector"></div>
+    <div class="step"><div class="step-num warm">4</div><div><div class="step-title" data-i18n="how.e4t">Хочешь быть заметнее? Закрепи вакансию</div><div class="step-desc" data-i18n="how.e4d">За 5€/мес вакансия будет всегда в топе.</div><span class="step-note">📌 5€/мес</span></div></div>
+  </div>
+  <div class="faq">
+    <div class="faq-title" data-i18n="faq.title">Частые вопросы</div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="faq.q1">Размещение правда бесплатное?</span><span class="faq-icon">+</span></div><div class="faq-a" data-i18n="faq.a1">Да, полностью. Платный только необязательный закреп за 5€/мес.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="faq.q2">Что даёт закреп за 5€?</span><span class="faq-icon">+</span></div><div class="faq-a" data-i18n="faq.a2">Объявление показывается выше всех с золотой рамкой 1 месяц.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="faq.q3">Как долго висит объявление?</span><span class="faq-icon">+</span></div><div class="faq-a" data-i18n="faq.a3">30 дней, после чего можно опубликовать снова — бесплатно.</div></div>
+    <div class="faq-item" onclick="toggleFaq(this)"><div class="faq-q"><span data-i18n="faq.q4">Как происходит общение?</span><span class="faq-icon">+</span></div><div class="faq-a" data-i18n="faq.a4">Напрямую через Telegram — кнопка есть в каждом объявлении.</div></div>
+  </div>
+  <div class="cta" style="margin-left:32px;margin-right:32px;overflow:hidden">
+    <h2 data-i18n="cta.title">Готов начать?</h2>
+    <p data-i18n="cta.sub">Размести объявление бесплатно — меньше минуты.</p>
+    <button class="btn-white" onclick="openModal('publish')" data-i18n="board.postBtn">Разместить бесплатно →</button>
+  </div>
+</div>
+
+<!-- SUPPORT -->
+<div class="page" id="page-support">
+  <section class="hero">
+    <div class="hero-badge" data-i18n="sup.badge">🛟 Поддержка</div>
+    <h1 data-i18n="sup.h1">Правила и <em>связь</em> с нами</h1>
+    <p data-i18n="sup.sub">Правила платформы и способы связаться с командой TaskMe Latvia.</p>
+  </section>
+  <div class="support-grid" style="max-width:760px;margin:0 auto;padding:0 32px 80px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+    <div>
+      <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:20px" data-i18n="sup.rLabel">📋 Правила платформы</div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px">
+          <div style="font-family:'Lora',serif;font-size:15px;font-weight:600;margin-bottom:8px;color:var(--accent)" data-i18n="sup.allowed">✅ Разрешено</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:7px">
+            <li style="font-size:13px;color:var(--muted);display:flex;gap:8px"><span>•</span><span data-i18n="sup.a1">Размещать реальные вакансии и анкеты бесплатно</span></li>
+            <li style="font-size:13px;color:var(--muted);display:flex;gap:8px"><span>•</span><span data-i18n="sup.a2">Предлагать легальные услуги</span></li>
+            <li style="font-size:13px;color:var(--muted);display:flex;gap:8px"><span>•</span><span data-i18n="sup.a3">Указывать реальные контакты</span></li>
+            <li style="font-size:13px;color:var(--muted);display:flex;gap:8px"><span>•</span><span data-i18n="sup.a4">Публиковать на русском или латышском</span></li>
+          </ul>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px">
+          <div style="font-family:'Lora',serif;font-size:15px;font-weight:600;margin-bottom:8px;color:var(--warm)" data-i18n="sup.banned">🚫 Запрещено</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:7px">
+            <li style="font-size:13px;color:var(--muted);display:flex;gap:8px"><span>•</span><span data-i18n="sup.b1">Мошенничество и обман</span></li>
+            <li style="font-size:13px;color:var(--muted);display:flex;gap:8px"><span>•</span><span data-i18n="sup.b2">Фиктивные объявления</span></li>
+            <li style="font-size:13px;color:var(--muted);display:flex;gap:8px"><span>•</span><span data-i18n="sup.b3">Нелегальные товары и услуги</span></li>
+            <li style="font-size:13px;color:var(--muted);display:flex;gap:8px"><span>•</span><span data-i18n="sup.b4">Оскорбления и дискриминация</span></li>
+          </ul>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px">
+          <div style="font-family:'Lora',serif;font-size:15px;font-weight:600;margin-bottom:8px" data-i18n="sup.imp">⚠️ Важно знать</div>
+          <ul style="list-style:none;display:flex;flex-direction:column;gap:7px">
+            <li style="font-size:13px;color:var(--muted);display:flex;gap:8px"><span>•</span><span data-i18n="sup.i1">Объявление активно 30 дней</span></li>
+            <li style="font-size:13px;color:var(--muted);display:flex;gap:8px"><span>•</span><span data-i18n="sup.i2">Мы вправе удалить нарушающее правила объявление</span></li>
+            <li style="font-size:13px;color:var(--muted);display:flex;gap:8px"><span>•</span><span data-i18n="sup.i3">Закреп — 1 месяц, оплата не возвращается</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);font-weight:500;margin-bottom:20px" data-i18n="sup.cLabel">✉️ Связаться с нами</div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px">
+          <div style="font-family:'Lora',serif;font-size:16px;font-weight:600;margin-bottom:6px" data-i18n="sup.c1t">Есть вопрос или проблема?</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.6" data-i18n="sup.c1d">Напиши нам в Telegram — отвечаем быстро.</p>
+          <a href="https://t.me/rassvetmr" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;text-decoration:none;padding:11px" data-i18n="sup.tgBtn">✈️ Написать в Telegram</a>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px">
+          <div style="font-family:'Lora',serif;font-size:16px;font-weight:600;margin-bottom:6px" data-i18n="sup.c2t">Наш Telegram-канал</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6" data-i18n="sup.c2d">Все новые объявления и новости выходят в канале.</p>
+          <a href="https://t.me/TaskMeLatvia" target="_blank" style="display:inline-flex;align-items:center;gap:6px;color:var(--accent);font-size:14px;font-weight:500;text-decoration:none;padding:7px 16px;border:1px solid #c5ddc9;border-radius:6px" data-i18n="sup.openBtn">✈️ Открыть канал</a>
+        </div>
+        <div style="background:var(--accent-light);border:1px solid #c5ddc9;border-radius:10px;padding:20px">
+          <div style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:6px" data-i18n="sup.rspT">🕐 Время ответа</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6" data-i18n="sup.rspD">Обычно отвечаем в течение нескольких часов.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PUBLISH MODAL -->
+<div class="modal-overlay" id="publishModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('publishModal')">✕</button>
+    <h2 data-i18n="form.title">Новое объявление</h2>
+    <p class="modal-subtitle" data-i18n="form.sub">Заполни форму — публикация бесплатная и моментальная</p>
+    <div class="type-toggle">
+      <button class="type-btn selected" onclick="selectType('job',this)"><span class="icon">🏢</span><span data-i18n="type.job">Вакансии</span></button>
+      <button class="type-btn" onclick="selectType('resume',this)"><span class="icon">👤</span><span data-i18n="type.resume">Анкеты</span></button>
+      <button class="type-btn" onclick="selectType('service',this)"><span class="icon">⚡</span><span data-i18n="type.service">Услуги</span></button>
+    </div>
+    <div class="form-group"><label id="titleLabel" data-i18n="form.tLabel">Название вакансии</label><input type="text" id="titleInput" data-i18n-ph="form.tPh"></div>
+    <div class="form-row">
+      <div class="form-group"><label data-i18n="form.city">Город</label><input type="text" id="cityInput" data-i18n-ph="form.cityPh"></div>
+      <div class="form-group"><label data-i18n="form.salary">Зарплата / Ожидания</label><input type="text" id="salaryInput" data-i18n-ph="form.salaryPh"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label data-i18n="filter.format">Формат</label>
+        <select id="formatInput">
+          <option data-i18n="format.remote">Удалённо</option>
+          <option data-i18n="format.onsite">На месте</option>
+          <option data-i18n="format.hybrid">Гибридно</option>
+        </select>
+      </div>
+      <div class="form-group"><label data-i18n="filter.schedule">График</label>
+        <select id="scheduleInput">
+          <option data-i18n="sched.part">Частичная занятость</option>
+          <option data-i18n="sched.full">Полная занятость</option>
+          <option data-i18n="sched.once">Разовая задача</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group"><label id="descLabel" data-i18n="form.dLabel">Описание</label><textarea id="descInput" data-i18n-ph="form.dPh"></textarea></div>
+    <div class="form-group"><label data-i18n="form.contact">Контакт (Telegram)</label><input type="text" id="contactInput" placeholder="@username"></div>
+        <div class="form-group">
+      <label data-i18n="form.photoLabel">Фото или изображение</label>
+      <div class="photo-upload-area" id="photoUploadArea">
+        <input type="file" id="photoInput" accept="image/*" onchange="handlePhotoUpload(event)">
+        <div id="photoUploadContent">
+          <div class="photo-upload-icon">🖼</div>
+          <div class="photo-upload-label">
+            <strong data-i18n="form.photoClick">Нажми или перетащи фото</strong>
+            <small data-i18n="form.photoHint">JPG, PNG, WEBP · до 5MB</small>
+          </div>
+        </div>
+        <div id="photoPreviewWrap" style="display:none">
+          <img id="photoPreview" class="photo-preview" src="" alt="preview">
+          <button class="photo-preview-remove" onclick="removePhoto(event)" title="Удалить">✕</button>
+        </div>
+      </div>
+    </div>
+    <div class="form-group"><label data-i18n="form.tags">Теги</label><input type="text" id="tagsInput" data-i18n-ph="form.tagsPh"></div>
+    <div style="border:1px solid #D4A843;border-radius:10px;padding:16px;background:#FFFDF5">
+      <label style="display:flex;align-items:flex-start;gap:12px;cursor:pointer">
+        <input type="checkbox" id="pinCheck" style="width:17px;height:17px;margin-top:2px;accent-color:#D4A843;flex-shrink:0">
+        <div>
+          <div style="font-weight:600;font-size:14px;color:#9A6F1A;margin-bottom:2px" data-i18n="form.pinL">📌 Закрепить объявление — 5€/мес</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.5" data-i18n="form.pinD">Объявление будет показываться выше всех.</div>
+        </div>
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" style="flex:1;border:1px solid var(--border);color:var(--muted)" onclick="closeModal('publishModal')" data-i18n="form.cancel">Отмена</button>
+      <button class="btn btn-primary" onclick="submitListing()" style="flex:2" data-i18n="form.submit">Опубликовать бесплатно →</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal"><button class="modal-close" onclick="closeModal('detailModal')">✕</button><div id="detailContent"></div></div>
+</div>
+
+<!-- PAY MODAL -->
+<div class="modal-overlay" id="payModal">
+  <div class="modal" style="max-width:400px;text-align:center">
+    <button class="modal-close" onclick="closeModal('payModal')">✕</button>
+    <div style="font-size:48px;margin-bottom:16px">📌</div>
+    <h2 style="margin-bottom:8px" data-i18n="pay.title">Закреп объявления</h2>
+    <p style="color:var(--muted);font-size:14px;margin-bottom:28px" data-i18n="pay.desc">Объявление уже опубликовано! Осталось оплатить закреп.</p>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:24px;text-align:left">
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-bottom:8px">
+        <span data-i18n="pay.pub">Публикация объявления</span><span style="color:var(--accent);font-weight:600" data-i18n="pay.free">Бесплатно</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:#9A6F1A;padding-top:8px;border-top:1px solid var(--border)">
+        <span data-i18n="pay.pin">📌 Закреп (1 месяц)</span>
+        <span style="font-family:'Lora',serif;font-size:20px;font-weight:600">5€</span>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" onclick="confirmPayment()" data-i18n="pay.btn">Оплатить закреп 5€ →</button>
+    <p style="font-size:12px;color:var(--muted);margin-top:12px" data-i18n="pay.stripe">🔒 Безопасная оплата через Stripe</p>
+  </div>
+</div>
+
+
+<!-- MOBILE NAV -->
+<div class="mob-nav" id="mobNav">
+  <div class="mob-nav-overlay" onclick="closeMobMenu()"></div>
+  <div class="mob-nav-panel">
+    <div class="mob-nav-header">
+      <div class="logo">Task<span>Me</span></div>
+      <button class="mob-nav-close" onclick="closeMobMenu()">✕</button>
+    </div>
+    <nav class="mob-nav-links">
+      <button onclick="showPage('board');closeMobMenu()" data-i18n="nav.board">Объявления</button>
+      <button onclick="showPage('about');closeMobMenu()" data-i18n="nav.about">О нас</button>
+      <button onclick="showPage('how');closeMobMenu()" data-i18n="nav.how">Как это работает</button>
+      <button onclick="showPage('support');closeMobMenu()" data-i18n="nav.support">Поддержка</button>
+    </nav>
+    <div class="mob-nav-bottom">
+      <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="openModal('publish');closeMobMenu()" data-i18n="nav.post">+ Разместить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer>
+  <div class="footer-logo">Task<span>Me</span> Latvia</div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:10px" data-i18n="footer.sub">Официальный сайт Telegram-канала сообщества</div>
+  <a href="https://t.me/TaskMeLatvia" target="_blank" style="display:inline-flex;align-items:center;gap:6px;color:var(--accent);font-size:14px;font-weight:500;text-decoration:none;padding:7px 16px;border:1px solid #c5ddc9;border-radius:6px" data-i18n="footer.tg">✈️ Наш Telegram-канал</a>
+  <p data-i18n="footer.copy">© 2026 TaskMe Latvia · Публикация бесплатно · Закреп — 5€/мес</p>
+</footer>
+
+<script>
+const TR = {
+ru:{
+'nav.board':'Объявления','nav.about':'О нас','nav.how':'Как это работает','nav.support':'Поддержка','nav.post':'+ Разместить',
+'board.h1':'Найди <em>подработку</em> или хорошего сотрудника',
+'board.sub':'Доска объявлений TaskMe Latvia. Размещение бесплатно.',
+'board.postBtn':'📋 Разместить бесплатно','board.browseBtn':'Смотреть объявления',
+'stats.listings':'объявлений','stats.free':'публикация бесплатно','stats.pin':'закреп — 5€/мес',
+'filter.title':'Фильтры','filter.type':'Тип','filter.format':'Формат','filter.schedule':'График',
+'type.job':'Вакансии','type.resume':'Анкеты','type.service':'Услуги',
+'format.remote':'Удалённо','format.onsite':'На месте','format.hybrid':'Гибридно',
+'sched.part':'Частичная занятость','sched.full':'Полная занятость','sched.once':'Разовая задача',
+'tab.all':'Все','search.ph':'Поиск по ключевым словам...',
+'cjob':'Вакансия','cresume':'Анкета','cservice':'Услуга','cpinned':'📌 Закреплено',
+'ctgBtn':'✈️ Написать в Telegram','ccontact':'Свяжись через Telegram прямо сейчас:',
+'ccity':'Город','csalary':'Зарплата','cexpect':'Ожидания','ccost':'Стоимость','cformat':'Формат','csched':'График',
+'about.h1':'Мы открываем новую <em>площадку</em> для поиска работы',
+'about.sub':'Быстрый и доступный способ найти подработку или нужного сотрудника — бесплатно.',
+'about.mLabel':'Наша миссия',
+'about.p1':'TaskMe Latvia — площадка, созданная для того, чтобы поиск работы и найм сотрудников стали простыми и доступными.',
+'about.p2':'Наша цель — создать <strong>полноценную платформу</strong> для удобства жителей Латвии.',
+'about.p3':'Мы только в начале пути, и каждое объявление — шаг к более доступному рынку труда.',
+'about.v1t':'Быстро','about.v1d':'Публикация занимает меньше минуты.',
+'about.v2t':'Бесплатно','about.v2d':'Размещение анкет и вакансий полностью бесплатно.',
+'about.v3t':'Для людей','about.v3d':'Платформа для жителей Латвии — простая и удобная.',
+'about.tgT':'Мы в Telegram','about.tgD':'Присоединяйся к каналу — там первыми новые объявления.','about.tgBtn':'✈️ Открыть канал',
+'how.badge':'📖 Инструкция','how.h1':'Как найти работу или <em>сотрудника</em> через TaskMe','how.sub':'Всё просто и бесплатно — выбери свою роль.',
+'how.worker':'👤 Ищу работу','how.employer':'🏢 Ищу сотрудника',
+'how.wIntro':'Ты студент или ищешь дополнительный заработок? Вот как — всё бесплатно.',
+'how.w1t':'Просматривай объявления','how.w1d':'Открой раздел и листай вакансии.',
+'how.w2t':'Нашёл подходящее — напиши напрямую','how.w2d':'Открой карточку и нажми кнопку Telegram.',
+'how.w3t':'Размести свою анкету бесплатно','how.w3d':'Нажми "Разместить", выбери "Анкета".',
+'how.w4t':'Хочешь больше откликов? Закрепи анкету','how.w4d':'За 5€/мес анкета будет всегда первой.',
+'how.eIntro':'Ищешь сотрудника? Всё бесплатно — платить только за закреп.',
+'how.e1t':'Просматривай анкеты соискателей','how.e1d':'Выбери вкладку "Анкеты".',
+'how.e2t':'Нашёл подходящего — напиши напрямую','how.e2d':'Открой анкету и нажми кнопку Telegram.',
+'how.e3t':'Размести вакансию бесплатно','how.e3d':'Нажми "Разместить", выбери "Вакансия".',
+'how.e4t':'Хочешь быть заметнее? Закрепи вакансию','how.e4d':'За 5€/мес вакансия будет всегда в топе.',
+'faq.title':'Частые вопросы',
+'faq.q1':'Размещение правда бесплатное?','faq.a1':'Да. Платный только необязательный закреп за 5€/мес.',
+'faq.q2':'Что даёт закреп за 5€?','faq.a2':'Объявление показывается выше всех с золотой рамкой 1 месяц.',
+'faq.q3':'Как долго висит объявление?','faq.a3':'30 дней, после можно опубликовать снова — бесплатно.',
+'faq.q4':'Как происходит общение?','faq.a4':'Напрямую через Telegram — кнопка в каждом объявлении.',
+'cta.title':'Готов начать?','cta.sub':'Размести объявление бесплатно — меньше минуты.',
+'sup.badge':'🛟 Поддержка','sup.h1':'Правила и <em>связь</em> с нами','sup.sub':'Правила платформы и способы связаться с нами.',
+'sup.rLabel':'📋 Правила платформы','sup.allowed':'✅ Разрешено','sup.banned':'🚫 Запрещено','sup.imp':'⚠️ Важно знать',
+'sup.a1':'Размещать реальные вакансии и анкеты бесплатно','sup.a2':'Предлагать легальные услуги',
+'sup.a3':'Указывать реальные контакты','sup.a4':'Публиковать на русском или латышском',
+'sup.b1':'Мошенничество и обман','sup.b2':'Фиктивные объявления','sup.b3':'Нелегальные товары','sup.b4':'Оскорбления и дискриминация',
+'sup.i1':'Объявление активно 30 дней','sup.i2':'Мы вправе удалить нарушающее объявление','sup.i3':'Закреп — 1 месяц, оплата не возвращается',
+'sup.cLabel':'✉️ Связаться с нами','sup.c1t':'Есть вопрос или проблема?','sup.c1d':'Напиши нам в Telegram — отвечаем быстро.',
+'sup.tgBtn':'✈️ Написать в Telegram','sup.c2t':'Наш Telegram-канал','sup.c2d':'Все новые объявления выходят в канале.',
+'sup.openBtn':'✈️ Открыть канал','sup.rspT':'🕐 Время ответа','sup.rspD':'Обычно отвечаем в течение нескольких часов.',
+'form.title':'Новое объявление','form.sub':'Заполни форму — публикация бесплатная и моментальная',
+'form.tLabel':'Название вакансии','form.tPh':'Например: Курьер на велосипеде',
+'form.city':'Город','form.cityPh':'Рига, Юрмала...','form.salary':'Зарплата / Ожидания','form.salaryPh':'500€/мес или договор.',
+'form.dLabel':'Описание','form.dPh':'Расскажи подробнее...','form.contact':'Контакт (Telegram)',
+'form.tags':'Теги (через запятую)','form.tagsPh':'дизайн, студент, гибкий график','form.photoLabel':'Фото или изображение (необязательно)','form.photoClick':'Нажми или перетащи фото','form.photoHint':'JPG, PNG, WEBP · до 5MB',
+'form.pinL':'📌 Закрепить объявление — 5€/мес','form.pinD':'Объявление будет показываться выше всех.',
+'form.cancel':'Отмена','form.submit':'Опубликовать бесплатно →',
+'pay.title':'Закреп объявления','pay.desc':'Объявление уже опубликовано! Осталось оплатить закреп.',
+'pay.pub':'Публикация объявления','pay.free':'Бесплатно','pay.pin':'📌 Закреп (1 месяц)',
+'pay.btn':'Оплатить закреп 5€ →','pay.stripe':'🔒 Безопасная оплата через Stripe',
+'footer.sub':'Официальный сайт Telegram-канала сообщества','footer.tg':'✈️ Наш Telegram-канал',
+'footer.copy':'© 2026 TaskMe Latvia · Публикация бесплатно · Закреп — 5€/мес',
+'toast.ok':'✅ Объявление опубликовано!','toast.pin':'✅ Объявление закреплено!','toast.fill':'Заполни название и контакт',
+'empty.t':'Ничего не найдено','empty.s':'Попробуй изменить фильтры или запрос',
+'type.jobS':'Вакансия','type.resumeS':'Анкета','type.serviceS':'Услуга',
+'tl.job':'Название вакансии','tl.resume':'Заголовок анкеты','tl.service':'Название услуги',
+'dl.job':'Описание','dl.resume':'О себе','dl.service':'Описание услуги',
+},
+lv:{
+'nav.board':'Sludinājumi','nav.about':'Par mums','nav.how':'Kā tas darbojas','nav.support':'Atbalsts','nav.post':'+ Publicēt',
+'board.h1':'Atrodi <em>papildu darbu</em> vai labu darbinieku',
+'board.sub':'TaskMe Latvia kopienas sludinājumu dēlis. Publicēšana bezmaksas.',
+'board.postBtn':'📋 Publicēt bez maksas','board.browseBtn':'Skatīt sludinājumus',
+'stats.listings':'sludinājumi','stats.free':'publicēšana bez maksas','stats.pin':'piespraust — 5€/mēn',
+'filter.title':'Filtri','filter.type':'Veids','filter.format':'Formāts','filter.schedule':'Grafiks',
+'type.job':'Vakances','type.resume':'Anketas','type.service':'Pakalpojumi',
+'format.remote':'Attālināti','format.onsite':'Klātienē','format.hybrid':'Hibrīds',
+'sched.part':'Nepilna slodze','sched.full':'Pilna slodze','sched.once':'Vienreizējs uzdevums',
+'tab.all':'Visi','search.ph':'Meklēt pēc atslēgvārdiem...',
+'cjob':'Vakance','cresume':'Anketa','cservice':'Pakalpojums','cpinned':'📌 Piesprausts',
+'ctgBtn':'✈️ Rakstīt Telegram','ccontact':'Saziņa tieši caur Telegram:',
+'ccity':'Pilsēta','csalary':'Alga','cexpect':'Vēlmes','ccost':'Cena','cformat':'Formāts','csched':'Grafiks',
+'about.h1':'Mēs atveram jaunu <em>platformu</em> darba meklēšanai',
+'about.sub':'Ātra un pieejama iespēja atrast papildu darbu vai labu darbinieku — bez maksas.',
+'about.mLabel':'Mūsu misija',
+'about.p1':'TaskMe Latvia ir platforma, kas radīta, lai darba meklēšana un darbinieku pieņemšana būtu vienkārša.',
+'about.p2':'Mūsu mērķis — izveidot <strong>pilnvērtīgu platformu</strong> Latvijas iedzīvotāju ērtībai.',
+'about.p3':'Mēs esam tikai sākumā, un katrs sludinājums ir solis tuvāk pieejamākam darba tirgum.',
+'about.v1t':'Ātri','about.v1d':'Publicēšana aizņem mazāk par minūti.',
+'about.v2t':'Bez maksas','about.v2d':'Anketu un vakanču publicēšana ir pilnīgi bez maksas.',
+'about.v3t':'Cilvēkiem','about.v3d':'Platforma Latvijas iedzīvotājiem — vienkārša un ērta.',
+'about.tgT':'Mēs Telegram','about.tgD':'Pievienojies kanālam — tur pirmie jauni sludinājumi.','about.tgBtn':'✈️ Atvērt kanālu',
+'how.badge':'📖 Instrukcija','how.h1':'Kā atrast darbu vai <em>darbinieku</em> caur TaskMe','how.sub':'Viss vienkārši un bez maksas.',
+'how.worker':'👤 Meklēju darbu','how.employer':'🏢 Meklēju darbinieku',
+'how.wIntro':'Tu esi students vai meklē papildu ienākumus? Lūk, kā — viss bez maksas.',
+'how.w1t':'Pārlūko sludinājumus','how.w1d':'Atver sadaļu un pārlūko vakances.',
+'how.w2t':'Atradi piemērotu — raksti tieši','how.w2d':'Atver karti un nospied Telegram pogu.',
+'how.w3t':'Publicē savu anketu bez maksas','how.w3d':'Nospied "Publicēt", izvēlies "Anketa".',
+'how.w4t':'Gribi vairāk atsauksmju? Piespied anketu','how.w4d':'Par 5€/mēn anketa būs vienmēr pirmā.',
+'how.eIntro':'Meklē darbinieku? Viss bez maksas — maksāt tikai par piespraudumu.',
+'how.e1t':'Pārlūko pretendentu anketas','how.e1d':'Izvēlies cilni "Anketas".',
+'how.e2t':'Atradi piemērotu — raksti tieši','how.e2d':'Atver anketu un nospied Telegram pogu.',
+'how.e3t':'Publicē vakanci bez maksas','how.e3d':'Nospied "Publicēt", izvēlies "Vakance".',
+'how.e4t':'Gribi būt pamanāmāks? Piespied vakanci','how.e4d':'Par 5€/mēn vakance būs vienmēr augšā.',
+'faq.title':'Biežāk uzdotie jautājumi',
+'faq.q1':'Vai publicēšana tiešām ir bez maksas?','faq.a1':'Jā. Maksā tikai neobligātais piespraudums par 5€/mēn.',
+'faq.q2':'Ko dod piespraudums par 5€?','faq.a2':'Sludinājums tiek rādīts virs citiem ar zelta rāmīti 1 mēnesi.',
+'faq.q3':'Cik ilgi sludinājums ir aktīvs?','faq.a3':'30 dienas, pēc tam var publicēt atkārtoti bez maksas.',
+'faq.q4':'Kā notiek saziņa?','faq.a4':'Tieši caur Telegram — poga ir katrā sludinājumā.',
+'cta.title':'Gatavs sākt?','cta.sub':'Publicē sludinājumu bez maksas — mazāk par minūti.',
+'sup.badge':'🛟 Atbalsts','sup.h1':'Noteikumi un <em>saziņa</em> ar mums','sup.sub':'Platformas noteikumi un saziņas iespējas.',
+'sup.rLabel':'📋 Platformas noteikumi','sup.allowed':'✅ Atļauts','sup.banned':'🚫 Aizliegts','sup.imp':'⚠️ Svarīgi zināt',
+'sup.a1':'Publicēt reālas vakances un anketas bez maksas','sup.a2':'Piedāvāt legālus pakalpojumus',
+'sup.a3':'Norādīt reālus kontaktus','sup.a4':'Publicēt latviešu vai krievu valodā',
+'sup.b1':'Krāpšana un maldināšana','sup.b2':'Fiktīvi sludinājumi','sup.b3':'Nelegālas preces','sup.b4':'Aizvainojumi un diskriminācija',
+'sup.i1':'Sludinājums aktīvs 30 dienas','sup.i2':'Mēs varam dzēst noteikumus pārkāpjošus sludinājumus','sup.i3':'Piespraudums — 1 mēnesis, maksa netiek atgriezta',
+'sup.cLabel':'✉️ Saziņa ar mums','sup.c1t':'Ir jautājums vai problēma?','sup.c1d':'Raksti mums Telegram — atbildam ātri.',
+'sup.tgBtn':'✈️ Rakstīt Telegram','sup.c2t':'Mūsu Telegram kanāls','sup.c2d':'Visi jaunie sludinājumi parādās kanālā.',
+'sup.openBtn':'✈️ Atvērt kanālu','sup.rspT':'🕐 Atbildes laiks','sup.rspD':'Parasti atbildam dažu stundu laikā.',
+'form.title':'Jauns sludinājums','form.sub':'Aizpildi veidlapu — publicēšana bez maksas un tūlītēja',
+'form.tLabel':'Vakances nosaukums','form.tPh':'Piem.: Kurjers ar velosipēdu',
+'form.city':'Pilsēta','form.cityPh':'Rīga, Jūrmala...','form.salary':'Alga / Cerības','form.salaryPh':'500€/mēn vai vienošanās',
+'form.dLabel':'Apraksts','form.dPh':'Pastāsti sīkāk...','form.contact':'Kontakts (Telegram)',
+'form.tags':'Tagi (ar komatu)','form.tagsPh':'dizains, students, elastīgs grafiks','form.photoLabel':'Foto vai attēls (neobligāti)','form.photoClick':'Nospied vai ievelc fotoattēlu','form.photoHint':'JPG, PNG, WEBP · līdz 5MB',
+'form.pinL':'📌 Piespraust sludinājumu — 5€/mēn','form.pinD':'Sludinājums tiks rādīts virs visiem.',
+'form.cancel':'Atcelt','form.submit':'Publicēt bez maksas →',
+'pay.title':'Sludinājuma piespraudums','pay.desc':'Sludinājums jau publicēts! Apmakso piespraudumu.',
+'pay.pub':'Sludinājuma publicēšana','pay.free':'Bez maksas','pay.pin':'📌 Piespraudums (1 mēnesis)',
+'pay.btn':'Apmaksāt piespraudumu 5€ →','pay.stripe':'🔒 Droša apmaksa caur Stripe',
+'footer.sub':'TaskMe Latvia Telegram kanāla oficiālā mājaslapa','footer.tg':'✈️ Mūsu Telegram kanāls',
+'footer.copy':'© 2026 TaskMe Latvia · Publicēšana bez maksas · Piespraudums — 5€/mēn',
+'toast.ok':'✅ Sludinājums publicēts!','toast.pin':'✅ Sludinājums piesprausts!','toast.fill':'Aizpildi nosaukumu un kontaktu',
+'empty.t':'Nekas nav atrasts','empty.s':'Mēģini mainīt filtrus vai meklēšanas vaicājumu',
+'type.jobS':'Vakance','type.resumeS':'Anketa','type.serviceS':'Pakalpojums',
+'tl.job':'Vakances nosaukums','tl.resume':'Anketas virsraksts','tl.service':'Pakalpojuma nosaukums',
+'dl.job':'Apraksts','dl.resume':'Par sevi','dl.service':'Pakalpojuma apraksts',
+},
+en:{
+'nav.board':'Listings','nav.about':'About','nav.how':'How it works','nav.support':'Support','nav.post':'+ Post',
+'board.h1':'Find a <em>side job</em> or a great employee',
+'board.sub':'TaskMe Latvia community job board. Free to post.',
+'board.postBtn':'📋 Post for free','board.browseBtn':'Browse listings',
+'stats.listings':'listings','stats.free':'posting is free','stats.pin':'pin — 5€/mo',
+'filter.title':'Filters','filter.type':'Type','filter.format':'Format','filter.schedule':'Schedule',
+'type.job':'Jobs','type.resume':'Resumes','type.service':'Services',
+'format.remote':'Remote','format.onsite':'On-site','format.hybrid':'Hybrid',
+'sched.part':'Part-time','sched.full':'Full-time','sched.once':'One-time task',
+'tab.all':'All','search.ph':'Search by keywords...',
+'cjob':'Job','cresume':'Resume','cservice':'Service','cpinned':'📌 Pinned',
+'ctgBtn':'✈️ Message on Telegram','ccontact':'Contact directly on Telegram:',
+'ccity':'City','csalary':'Salary','cexpect':'Expectations','ccost':'Price','cformat':'Format','csched':'Schedule',
+'about.h1':'We are launching a new <em>platform</em> for job search',
+'about.sub':'A fast and accessible way to find a part-time job or a great employee — all for free.',
+'about.mLabel':'Our mission',
+'about.p1':'TaskMe Latvia is a platform built to make job searching and hiring simple and accessible for everyone.',
+'about.p2':'Our goal is to create a <strong>full-featured platform</strong> that works for the convenience of Latvian residents.',
+'about.p3':'We are just getting started, and every listing is a step toward a more accessible job market.',
+'about.v1t':'Fast','about.v1d':'Posting takes less than a minute.',
+'about.v2t':'Free','about.v2d':'Posting resumes and vacancies is completely free.',
+'about.v3t':'For people','about.v3d':'A platform for Latvian residents — simple and convenient.',
+'about.tgT':'We are on Telegram','about.tgD':'Join the TaskMe Latvia channel for the latest listings.','about.tgBtn':'✈️ Open channel',
+'how.badge':'📖 Guide','how.h1':'How to find a job or <em>employee</em> through TaskMe','how.sub':'Simple and free — choose your role.',
+'how.worker':'👤 Looking for work','how.employer':'🏢 Looking for an employee',
+'how.wIntro':'Are you a student or looking for extra income? Here is how — all free.',
+'how.w1t':'Browse listings','how.w1d':'Open the listings section and browse vacancies.',
+'how.w2t':'Found something? Write directly','how.w2d':'Open the card and tap the Telegram button.',
+'how.w3t':'Post your resume for free','how.w3d':'Tap "Post", choose "Resume" and fill in the form.',
+'how.w4t':'Want more responses? Pin your resume','how.w4d':'For 5€/mo your resume will always appear first.',
+'how.eIntro':'Looking for an employee? Everything is free — only pay for pinning.',
+'how.e1t':'Browse candidate resumes','how.e1d':'Choose the "Resumes" tab.',
+'how.e2t':'Found someone? Write directly','how.e2d':'Open the resume and tap the Telegram button.',
+'how.e3t':'Post a vacancy for free','how.e3d':'Tap "Post", choose "Job" and describe the role.',
+'how.e4t':'Want more visibility? Pin your listing','how.e4d':'For 5€/mo your listing will always be at the top.',
+'faq.title':'Frequently asked questions',
+'faq.q1':'Is posting really free?','faq.a1':'Yes. Only the optional pin costs 5€/mo.',
+'faq.q2':'What does pinning for 5€ give?','faq.a2':'Your listing appears above all others with a gold border for 1 month.',
+'faq.q3':'How long does a listing stay active?','faq.a3':'30 days, after which you can re-post for free.',
+'faq.q4':'How does communication happen?','faq.a4':'Directly via Telegram — there is a button in every listing.',
+'cta.title':'Ready to start?','cta.sub':'Post a listing for free — less than a minute.',
+'sup.badge':'🛟 Support','sup.h1':'Rules and <em>contact</em> us','sup.sub':'Platform rules and ways to contact the TaskMe Latvia team.',
+'sup.rLabel':'📋 Platform rules','sup.allowed':'✅ Allowed','sup.banned':'🚫 Prohibited','sup.imp':'⚠️ Important',
+'sup.a1':'Post real vacancies and resumes for free','sup.a2':'Offer legal services',
+'sup.a3':'Provide real contact details','sup.a4':'Post in Latvian, Russian or English',
+'sup.b1':'Fraud and deception','sup.b2':'Fake or duplicate listings','sup.b3':'Illegal goods and services','sup.b4':'Insults and discrimination',
+'sup.i1':'Listing is active for 30 days','sup.i2':'We may remove listings that violate the rules','sup.i3':'Pin lasts 1 month, payment is non-refundable',
+'sup.cLabel':'✉️ Contact us','sup.c1t':'Have a question or issue?','sup.c1d':'Write to us on Telegram — we reply quickly.',
+'sup.tgBtn':'✈️ Message on Telegram','sup.c2t':'Our Telegram channel','sup.c2d':'All new listings and news are published in the channel.',
+'sup.openBtn':'✈️ Open channel','sup.rspT':'🕐 Response time','sup.rspD':'We usually reply within a few hours.',
+'form.title':'New listing','form.sub':'Fill in the form — posting is free and instant',
+'form.tLabel':'Job title','form.tPh':'E.g.: Bicycle courier',
+'form.city':'City','form.cityPh':'Riga, Jūrmala...','form.salary':'Salary / Expectations','form.salaryPh':'€500/mo or negotiable',
+'form.dLabel':'Description','form.dPh':'Tell us more...','form.contact':'Contact (Telegram)',
+'form.tags':'Tags (comma separated)','form.tagsPh':'design, student, flexible hours','form.photoLabel':'Photo or image (optional)','form.photoClick':'Click or drag a photo here','form.photoHint':'JPG, PNG, WEBP · up to 5MB',
+'form.pinL':'📌 Pin listing — 5€/mo','form.pinD':'Your listing will appear above all others.',
+'form.cancel':'Cancel','form.submit':'Post for free →',
+'pay.title':'Pin your listing','pay.desc':'Your listing is already live! Just pay for the pin.',
+'pay.pub':'Posting the listing','pay.free':'Free','pay.pin':'📌 Pin (1 month)',
+'pay.btn':'Pay for pin 5€ →','pay.stripe':'🔒 Secure payment via Stripe',
+'footer.sub':'Official website of the TaskMe Latvia Telegram community','footer.tg':'✈️ Our Telegram channel',
+'footer.copy':'© 2026 TaskMe Latvia · Free posting · Pin — 5€/mo',
+'toast.ok':'✅ Listing posted for free!','toast.pin':'✅ Listing pinned!','toast.fill':'Please fill in title and contact',
+'empty.t':'Nothing found','empty.s':'Try changing the filters or search query',
+'type.jobS':'Job','type.resumeS':'Resume','type.serviceS':'Service',
+'tl.job':'Job title','tl.resume':'Resume title','tl.service':'Service name',
+'dl.job':'Description','dl.resume':'About me','dl.service':'Service description',
+}
+};
+
+let lang = 'ru';
+function t(k){ return TR[lang][k] || TR.ru[k] || k; }
+
+function setLang(l){
+  lang = l;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  const idx={ru:0,lv:1,en:2};
+  document.querySelectorAll('.lang-btn')[idx[l]].classList.add('active');
+  applyTr();
+  applyFilters();
+}
+
+function applyTr(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n'), v=t(k);
+    if(el.tagName==='INPUT'||el.tagName==='OPTION'){ el.textContent=v; }
+    else { el.innerHTML=v; }
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder=t(el.getAttribute('data-i18n-ph')); });
+  const fi=document.getElementById('formatInput');
+  if(fi){fi.options[0].text=t('format.remote');fi.options[1].text=t('format.onsite');fi.options[2].text=t('format.hybrid');}
+  const si=document.getElementById('scheduleInput');
+  if(si){si.options[0].text=t('sched.part');si.options[1].text=t('sched.full');si.options[2].text=t('sched.once');}
+}
+
+const listings=[
+  {id:1,type:'service',title:'AI менеджер — дизайн, фото, видео, контент',city:'Рига',salary:'Договорная',format:'Удалённо',schedule:'Частичная занятость',desc:'Создаю профессиональный контент с помощью нейросетей: логотипы, обложки, AI-фотосессии, видеоролики. Портфолио — в личных сообщениях.',contact:'@Veterocekk',tags:['нейросети','дизайн','AI'],date:'28 мая 2026',pinned:false},
+  {id:2,type:'resume',title:'Ищу подработку летом — Тимур, 16 лет',city:'Рига (Имант / Центр)',salary:'Договорная',format:'На месте',schedule:'Частичная занятость',desc:'Готов подрабатывать летом. Рассматриваю Имант или центр Риги. Опыта нет, но готов учиться.',contact:'@KURINIJBULJONCHIK',tags:['подработка','лето'],date:'28 мая 2026',pinned:false},
+  {id:3,type:'resume',title:'Ищу работу / подработку — Яна, 14 лет',city:'Рига',salary:'Договорная',format:'На месте',schedule:'Частичная занятость',desc:'Ищу работу или подработку в Риге. Ответственная, готова к любым задачам.',contact:'@Yana26_0',tags:['подработка','Рига'],date:'28 мая 2026',pinned:false},
+  {id:4,type:'resume',title:'Подработка на выходные или после учёбы — 17 лет',city:'Рига',salary:'Договорная',format:'На месте',schedule:'Гибкий график',desc:'Ищу подработку на выходные или после учёбы. 17 лет, Рига.',contact:'@wyzixxx',tags:['гибкий график','выходные'],date:'28 мая 2026',pinned:false},
+  {id:5,type:'resume',title:'Ищу работу — 14 лет, ответственная',city:'Рига',salary:'Договорная',format:'На месте',schedule:'Частичная занятость',desc:'14 лет, ответственная. Умею готовить, убираться, следить за детьми и животными.',contact:'@kxolikk',tags:['уборка','готовка','няня'],date:'28 мая 2026',pinned:false},
+  {id:6,type:'resume',title:'Физический труд / разнорабочий — Егор, 15 лет',city:'Рига (Мангали)',salary:'Договорная',format:'На месте',schedule:'4/3 или договорной',desc:'Могу выполнять тяжёлую работу. Опыт на стройке. Готов приехать куда нужно по Риге.',contact:'@egorSBD',tags:['физический труд','стройка'],date:'28 мая 2026',pinned:false}
+];
+let extraListings=[];
+let currentType='job', activeTab='all', pendingListing=null;
+function allL(){ return [...listings,...extraListings]; }
+
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-link[id^="nav-"]').forEach(l=>l.classList.remove('active'));
+  const el=document.getElementById('nav-'+id);
+  if(el) el.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='board') applyFilters();
+}
+
+function renderCards(data){
+  const c=document.getElementById('cardsContainer');
+  if(!data.length){c.innerHTML=`<div class="empty"><div class="empty-icon">🔍</div><h3>${t('empty.t')}</h3><p>${t('empty.s')}</p></div>`;return;}
+  const sorted=[...data.filter(l=>l.pinned),...data.filter(l=>!l.pinned)];
+  c.innerHTML=sorted.map((l,i)=>{
+    const tc=l.type==='job'?'type-job':l.type==='resume'?'type-resume':'type-service';
+    const tl=l.type==='job'?t('cjob'):l.type==='resume'?t('cresume'):t('cservice');
+    return `<div class="card${l.pinned?' pinned':''}" onclick="openDetail(${l.id})" style="animation-delay:${i*0.05}s">
+      ${l.pinned?`<div class="pin-badge">${t('cpinned')}</div>`:''}
+      <div class="card-header"><div class="card-title">${l.title}</div><span class="card-type ${tc}">${tl}</span></div>
+      <div class="card-meta"><span>📍 ${l.city}</span><span>💰 ${l.salary}</span><span>🕐 ${l.schedule}</span><span>💻 ${l.format}</span></div>
+      <div class="card-desc">${l.desc}</div>
+      <div class="card-footer"><div class="tags">${l.tags.map(x=>`<span class="tag">${x}</span>`).join('')}</div><span class="card-date">${l.date}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function applyFilters(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const ch=document.querySelectorAll('.filter-option input[type="checkbox"]');
+  const sj=ch[0].checked,sr=ch[1].checked,ss=ch[2].checked;
+  const f=allL().filter(l=>{
+    if(l.type==='job'&&!sj)return false;
+    if(l.type==='resume'&&!sr)return false;
+    if(l.type==='service'&&!ss)return false;
+    if(activeTab!=='all'&&l.type!==activeTab)return false;
+    if(q&&!`${l.title} ${l.desc} ${l.tags.join(' ')}`.toLowerCase().includes(q))return false;
+    return true;
+  });
+  renderCards(f);
+  document.getElementById('totalCount').textContent=allL().length;
+  document.getElementById('jobCount').textContent=allL().filter(l=>l.type==='job').length;
+  document.getElementById('resumeCount').textContent=allL().filter(l=>l.type==='resume').length;
+  document.getElementById('serviceCount').textContent=allL().filter(l=>l.type==='service').length;
+}
+
+function switchTab(tab,el){
+  activeTab=tab;
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+
+function openModal(id){document.getElementById(id+'Modal').classList.add('open');document.body.style.overflow='hidden';}
+function closeModal(id){document.getElementById(id).classList.remove('open');document.body.style.overflow='';}
+
+function selectType(type,el){
+  currentType=type;
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('titleLabel').textContent=t('tl.'+type);
+  document.getElementById('descLabel').textContent=t('dl.'+type);
+}
+
+function openDetail(id){
+  const l=allL().find(x=>x.id===id);
+  if(!l)return;
+  const tc=l.type==='job'?'type-job':l.type==='resume'?'type-resume':'type-service';
+  const tl=l.type==='job'?t('cjob'):l.type==='resume'?t('cresume'):t('cservice');
+  const sl=l.type==='job'?t('csalary'):l.type==='service'?t('ccost'):t('cexpect');
+  const h=l.contact.startsWith('@')?l.contact.slice(1):l.contact;
+  const cb=l.contact.startsWith('@')?`<a href="https://t.me/${h}" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;text-decoration:none;font-size:15px">${t('ctgBtn')}</a>`:`<div style="font-weight:500;font-size:16px;color:var(--accent)">${l.contact}</div>`;
+  document.getElementById('detailContent').innerHTML=`
+    <div style="margin-bottom:16px">
+      ${l.pinned?`<div class="pin-badge" style="margin-bottom:10px">${t('cpinned')}</div>`:''}
+      <span class="card-type ${tc}" style="margin-bottom:12px;display:inline-block">${tl}</span>
+      <h2 style="font-family:'Lora',serif;font-size:22px;margin-bottom:4px">${l.title}</h2>
+      <div style="color:var(--muted);font-size:13px">${l.date}</div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+      <div class="detail-section"><div class="detail-label">${t('ccity')}</div><div class="detail-value">📍 ${l.city}</div></div>
+      <div class="detail-section"><div class="detail-label">${sl}</div><div class="detail-value">💰 ${l.salary}</div></div>
+      <div class="detail-section"><div class="detail-label">${t('cformat')}</div><div class="detail-value">💻 ${l.format}</div></div>
+      <div class="detail-section"><div class="detail-label">${t('csched')}</div><div class="detail-value">🕐 ${l.schedule}</div></div>
+    </div>
+    <div style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:12px">${l.desc}</div>
+    <div class="tags">${l.tags.map(x=>`<span class="tag">${x}</span>`).join('')}</div>
+    <div class="contact-box" style="margin-top:20px"><p style="font-size:13px;color:var(--accent);margin-bottom:12px">${t('ccontact')}</p>${cb}</div>`;
+  document.getElementById('detailModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function submitListing(){
+  const title=document.getElementById('titleInput').value.trim();
+  const contact=document.getElementById('contactInput').value.trim();
+  if(!title||!contact){showToast(t('toast.fill'));return;}
+  const isPinned=document.getElementById('pinCheck').checked;
+  pendingListing={
+    id:Date.now(),type:currentType,title,
+    city:document.getElementById('cityInput').value||'—',
+    salary:document.getElementById('salaryInput').value||'—',
+    format:document.getElementById('formatInput').value,
+    schedule:document.getElementById('scheduleInput').value,
+    desc:document.getElementById('descInput').value,
+    contact,
+    tags:document.getElementById('tagsInput').value.split(',').map(x=>x.trim()).filter(Boolean),
+    date:new Date().toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'}),
+    pinned:isPinned
+  };
+  if(isPinned){
+    extraListings.unshift(pendingListing);
+    applyFilters();
+    closeModal('publishModal');
+    setTimeout(()=>openModal('pay'),200);
+  } else {
+    extraListings.unshift(pendingListing);
+    pendingListing=null;
+    closeModal('publishModal');
+    applyFilters();
+    resetForm();
+    showToast(t('toast.ok'));
+    showPage('board');
+  }
+}
+
+function confirmPayment(){
+  pendingListing=null;
+  closeModal('payModal');
+  applyFilters();
+  resetForm();
+  showToast(t('toast.pin'));
+  showPage('board');
+}
+
+function resetForm(){
+  ['titleInput','cityInput','salaryInput','descInput','contactInput','tagsInput'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('pinCheck').checked=false;
+}
+
+function showToast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+function showSection(id,btn){
+  document.querySelectorAll('.steps-section').forEach(s=>s.classList.remove('visible'));
+  document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('visible');
+  btn.classList.add('active');
+}
+function toggleFaq(el){el.classList.toggle('open');}
+
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{if(e.target===o){o.classList.remove('open');document.body.style.overflow='';}});
+});
+
+applyTr();
+showPage('board');
+
+// ── MOBILE MENU ──
+function toggleMobMenu() {
+  const nav = document.getElementById('mobNav');
+  const btn = document.getElementById('mobMenuBtn');
+  if (!nav || !btn) return;
+  const isOpen = nav.classList.contains('open');
+  if (isOpen) {
+    closeMobMenu();
+  } else {
+    nav.classList.add('open');
+    btn.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+  }
+}
+
+function closeMobMenu() {
+  const nav = document.getElementById('mobNav');
+  const btn = document.getElementById('mobMenuBtn');
+  if (!nav || !btn) return;
+  nav.classList.remove('open');
+  btn.classList.remove('open');
+  document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.width = '';
+}
+
+// Close mobile menu on ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeMobMenu();
+});
+
+// Update mobile nav link translations
+const _applyTrOrig = applyTr;
+applyTr = function() {
+  _applyTrOrig();
+  // also translate mobile nav buttons
+  document.querySelectorAll('.mob-nav-links button[data-i18n], .mob-nav-bottom button[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if (k) el.textContent = t(k);
+  });
+};
+
+// Highlight active page in mobile nav
+const _showPageOrig = showPage;
+showPage = function(id) {
+  _showPageOrig(id);
+  document.querySelectorAll('.mob-nav-links button').forEach(b => b.style.color = '');
+  const pages = ['board','about','how','support'];
+  const idx = pages.indexOf(id);
+  const btns = document.querySelectorAll('.mob-nav-links button');
+  if (btns[idx]) btns[idx].style.color = 'var(--accent)';
+};
+
+
+// ── PHOTO UPLOAD ──
+let currentPhotoData = null;
+
+function handlePhotoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    const msg = lang==='en'?'Photo too large (max 5MB)':lang==='lv'?'Foto pārāk liels (maks 5MB)':'Фото слишком большое (макс 5MB)';
+    showToast('⚠️ ' + msg); return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    currentPhotoData = e.target.result;
+    document.getElementById('photoPreview').src = currentPhotoData;
+    document.getElementById('photoUploadContent').style.display = 'none';
+    document.getElementById('photoPreviewWrap').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto(e) {
+  e.stopPropagation();
+  e.preventDefault();
+  currentPhotoData = null;
+  document.getElementById('photoInput').value = '';
+  document.getElementById('photoPreview').src = '';
+  document.getElementById('photoUploadContent').style.display = 'block';
+  document.getElementById('photoPreviewWrap').style.display = 'none';
+}
+
+// Drag & drop support
+document.addEventListener('DOMContentLoaded', () => {
+  const area = document.getElementById('photoUploadArea');
+  if (!area) return;
+  area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('dragover'); });
+  area.addEventListener('dragleave', () => area.classList.remove('dragover'));
+  area.addEventListener('drop', e => {
+    e.preventDefault();
+    area.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      document.getElementById('photoInput').files = e.dataTransfer.files;
+      handlePhotoUpload({ target: { files: [file] } });
+    }
+  });
+});
+
+// ── Reset photo on form close ──
+const _resetFormOrig = resetForm;
+resetForm = function() {
+  _resetFormOrig();
+  currentPhotoData = null;
+  const pi = document.getElementById('photoInput');
+  if (pi) pi.value = '';
+  const pp = document.getElementById('photoPreview');
+  if (pp) pp.src = '';
+  const uc = document.getElementById('photoUploadContent');
+  if (uc) uc.style.display = 'block';
+  const pw = document.getElementById('photoPreviewWrap');
+  if (pw) pw.style.display = 'none';
+};
+
+// ── Include photo in submitted listing ──
+const _submitListingOrig = submitListing;
+submitListing = function() {
+  // Inject photo into pending before submit
+  const origPending = pendingListing;
+  _submitListingOrig();
+  // After submitListing runs, pendingListing may be set — add photo to extraListings
+  if (extraListings.length > 0 && currentPhotoData) {
+    extraListings[0].photo = currentPhotoData;
+  }
+};
+
+// ── OVERRIDE _renderCardsEnhanced to show photos in cards ──
+const __renderCardsVisualOrig = typeof __renderCardsVisual !== 'undefined' ? __renderCardsVisual : null;
+
+function __renderCardsVisual(data) {
+  const cont = document.getElementById('cardsContainer');
+  if (!data.length) {
+    const resetLabel = lang==='en'?'Reset filters':lang==='lv'?'Atiestatīt filtrus':'Сбросить фильтры';
+    cont.innerHTML = `<div class="empty">
+      <div class="empty-icon">🔍</div>
+      <h3>${t('empty.t')}</h3><p>${t('empty.s')}</p>
+      <div class="empty-reset" onclick="resetFilters()">✕ ${resetLabel}</div>
+    </div>`;
+    return;
+  }
+  const sorted = [...data.filter(l=>l.pinned), ...data.filter(l=>!l.pinned)];
+  const shareLabel = lang==='en'?'Share':lang==='lv'?'Kopīgot':'Поделиться';
+  const newLabel   = lang==='en'?'NEW':lang==='lv'?'JAUNS':'НОВОЕ';
+  const writeLbl   = lang==='en'?'Write on Telegram':lang==='lv'?'Rakstīt Telegram':'Написать в Telegram';
+
+  cont.innerHTML = sorted.map((l, i) => {
+    const tc = l.type==='job'?'type-job':l.type==='resume'?'type-resume':'type-service';
+    const tl = l.type==='job'?t('cjob'):l.type==='resume'?t('cresume'):t('cservice');
+    const newBadge = isNew(l.date) ? `<span class="new-badge">${newLabel}</span>` : '';
+    const relTime  = relativeTime(l.date);
+    const avColor  = getAvColor(l.title);
+    const initial  = getInitial(l.title);
+    const tgHandle = l.contact && l.contact.startsWith('@') ? l.contact.slice(1) : '';
+    const contactPreview = tgHandle
+      ? `<div class="contact-preview">✈️ ${l.contact} · ${writeLbl}</div>` : '';
+    const photoBlock = l.photo
+      ? `<div class="card-photo-wrap"><img src="${l.photo}" alt="photo" loading="lazy"></div>` : '';
+
+    return `<div class="card${l.pinned?' pinned':''}" onclick="openDetail(${l.id})" style="animation-delay:${i*0.06}s">
+      ${l.pinned ? `<div class="pin-badge">${t('cpinned')}</div>` : ''}
+      <div class="card-top">
+        <div class="card-avatar ${avColor}">${initial}</div>
+        <div class="card-top-content">
+          <div class="card-header" style="margin-bottom:4px">
+            <div class="card-title">${l.title}${newBadge}</div>
+            <span class="card-type ${tc}">${tl}</span>
+          </div>
+          <div class="card-meta"><span>📍 ${l.city}</span><span>💰 ${l.salary}</span><span>🕐 ${l.schedule}</span><span>💻 ${l.format}</span></div>
+        </div>
+      </div>
+      ${photoBlock}
+      <div class="card-desc">${l.desc}</div>
+      <div class="card-footer">
+        <div class="tags">${l.tags.map(x=>`<span class="tag">${x}</span>`).join('')}
+          <button class="share-btn" onclick="shareListing(${l.id},event)">🔗 ${shareLabel}</button>
+        </div>
+        <span class="card-date">${relTime}</span>
+      </div>
+      ${contactPreview}
+    </div>`;
+  }).join('');
+  setTimeout(showOnboardingHint, 800);
+}
+
+// ── Show photo in detail modal ──
+const _openDetailOrig = openDetail;
+openDetail = function(id) {
+  const l = allL().find(x=>x.id===id);
+  if (!l) return;
+  const tc = l.type==='job'?'type-job':l.type==='resume'?'type-resume':'type-service';
+  const tl = l.type==='job'?t('cjob'):l.type==='resume'?t('cresume'):t('cservice');
+  const sl = l.type==='job'?t('csalary'):l.type==='service'?t('ccost'):t('cexpect');
+  const h  = l.contact && l.contact.startsWith('@') ? l.contact.slice(1) : '';
+  const cb = l.contact && l.contact.startsWith('@')
+    ? `<a href="https://t.me/${h}" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;text-decoration:none;font-size:15px">${t('ctgBtn')}</a>`
+    : `<div style="font-weight:500;font-size:16px;color:var(--accent)">${l.contact}</div>`;
+  const photoHtml = l.photo
+    ? `<img src="${l.photo}" class="detail-photo" alt="photo">` : '';
+
+  document.getElementById('detailContent').innerHTML = `
+    ${photoHtml}
+    <div style="margin-bottom:16px">
+      ${l.pinned?`<div class="pin-badge" style="margin-bottom:10px">${t('cpinned')}</div>`:''}
+      <span class="card-type ${tc}" style="margin-bottom:12px;display:inline-block">${tl}</span>
+      <h2 style="font-family:'Lora',serif;font-size:22px;margin-bottom:4px">${l.title}</h2>
+      <div style="color:var(--muted);font-size:13px">${l.date}</div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+      <div class="detail-section"><div class="detail-label">${t('ccity')}</div><div class="detail-value">📍 ${l.city}</div></div>
+      <div class="detail-section"><div class="detail-label">${sl}</div><div class="detail-value">💰 ${l.salary}</div></div>
+      <div class="detail-section"><div class="detail-label">${t('cformat')}</div><div class="detail-value">💻 ${l.format}</div></div>
+      <div class="detail-section"><div class="detail-label">${t('csched')}</div><div class="detail-value">🕐 ${l.schedule}</div></div>
+    </div>
+    <div style="font-size:14px;color:var(--muted);line-height:1.65;margin-bottom:12px">${l.desc}</div>
+    <div class="tags">${l.tags.map(x=>`<span class="tag">${x}</span>`).join('')}</div>
+    <div class="contact-box" style="margin-top:20px">
+      <p style="font-size:13px;color:var(--accent);margin-bottom:12px">${t('ccontact')}</p>
+      ${cb}
+    </div>`;
+  document.getElementById('detailModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+</script>
+</body>
+</html>
