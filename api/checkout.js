@@ -1,10 +1,9 @@
-import Stripe from 'stripe';
+const Stripe = require('stripe');
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   const { listing_id, title } = req.body;
 
   try {
@@ -22,13 +21,14 @@ export default async function handler(req, res) {
         quantity: 1,
       }],
       mode: 'payment',
-      success_url: 'https://taskme-latvia.vercel.app?pinned=success',
-      cancel_url: 'https://taskme-latvia.vercel.app?pinned=cancel',
-      metadata: { listing_id },
+      success_url: 'https://taskmelatvia.com?pinned=success',
+      cancel_url: 'https://taskmelatvia.com?pinned=cancel',
+      metadata: { listing_id: String(listing_id) },
     });
 
     res.json({ url: session.url });
   } catch (err) {
+    console.error('Stripe error:', err.message);
     res.status(500).json({ error: err.message });
   }
-}
+};
