@@ -937,7 +937,7 @@ function renderCards(data){
   c.innerHTML=sorted.map((l,i)=>{
     const tc=l.type==='job'?'type-job':l.type==='resume'?'type-resume':'type-service';
     const tl=l.type==='job'?t('cjob'):l.type==='resume'?t('cresume'):t('cservice');
-    return `<div class="card${l.pinned?' pinned':''}" onclick="openDetail(${l.id})" style="animation-delay:${i*0.05}s">
+    return `<div class="card${l.pinned?' pinned':''}" onclick="openDetail('${l.id}')" style="animation-delay:${i*0.05}s">
       ${l.pinned?`<div class="pin-badge">${t('cpinned')}</div>`:''}
       <div class="card-header"><div class="card-title">${l.title}</div><span class="card-type ${tc}">${tl}</span></div>
       <div class="card-meta"><span>📍 ${l.city}</span><span>💰 ${l.salary}</span><span>🕐 ${l.schedule}</span><span>💻 ${l.format}</span></div>
@@ -985,7 +985,7 @@ function selectType(type,el){
 }
 
 function openDetail(id){
-  const l=allL().find(x=>x.id===id);
+  const l=allL().find(x=>String(x.id)===String(id));
   if(!l)return;
   const tc=l.type==='job'?'type-job':l.type==='resume'?'type-resume':'type-service';
   const tl=l.type==='job'?t('cjob'):l.type==='resume'?t('cresume'):t('cservice');
@@ -1523,4 +1523,4 @@ window.addEventListener('load', () => {
 
 </script>
 </body>
-</html>
+</html> 
